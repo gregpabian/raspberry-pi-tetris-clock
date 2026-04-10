@@ -25,7 +25,7 @@ fi
 
 echo "Building rpi-rgb-led-matrix Python bindings..."
 cd /opt/rpi-rgb-led-matrix/bindings/python
-pip3 install .
+pip3 install . --break-system-packages
 
 # Configure boot settings
 echo "Configuring boot settings..."
