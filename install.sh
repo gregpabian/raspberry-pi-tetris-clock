@@ -15,7 +15,7 @@ fi
 # Install system dependencies
 echo "Installing system dependencies..."
 apt-get update
-apt-get install -y python3-dev python3-pip python3-pillow git
+apt-get install -y python3-dev python3-pip python3-pillow cython3 git
 
 # Install rpi-rgb-led-matrix
 if [ ! -d "/opt/rpi-rgb-led-matrix" ]; then
@@ -24,9 +24,8 @@ if [ ! -d "/opt/rpi-rgb-led-matrix" ]; then
 fi
 
 echo "Building rpi-rgb-led-matrix Python bindings..."
-cd /opt/rpi-rgb-led-matrix
-make build-python PYTHON=$(which python3)
-make install-python PYTHON=$(which python3)
+cd /opt/rpi-rgb-led-matrix/bindings/python
+pip3 install .
 
 # Configure boot settings
 echo "Configuring boot settings..."
