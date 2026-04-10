@@ -6,22 +6,34 @@ Converts animation state to absolute screen coordinates for rendering.
 """
 
 from datetime import datetime
-from tetris_clock.tetris_font import X_SHIFT_CLOCK, TETRIS_Y_DROP_DEFAULT
+from tetris_clock.tetris_font import X_SHIFT_CLOCK
 from tetris_clock.animation import DigitAnimation
+
+# Content bounds in local (1x) coordinates
+_CONTENT_WIDTH_1X = 31   # approximate total width of HH:MM layout
+_CONTENT_TOP_1X = 4      # topmost pixel y (settled block with max upward piece offset)
+_CONTENT_BOTTOM_1X = 15  # bottommost pixel y (y_stop=16, settled at 15)
 
 
 class Clock:
     """Manages the tetris clock display state."""
 
-    def __init__(self, x_origin=16, y_finish=32):
+    def __init__(self, scale=1, display_width=64, display_height=32):
         """
         Args:
-            x_origin: Left x offset on screen (default centers 31px layout on 64px display)
-            y_finish: Bottom y coordinate of the digit area
+            scale: Pixel scale factor (each block pixel becomes scale×scale)
+            display_width: Display width in pixels
+            display_height: Display height in pixels
         """
-        self.x_origin = x_origin
-        self.y_finish = y_finish
-        self.y_base = y_finish - TETRIS_Y_DROP_DEFAULT
+        self.scale = scale
+
+        # Center content on display
+        content_w = _CONTENT_WIDTH_1X * scale
+        content_h = (_CONTENT_BOTTOM_1X - _CONTENT_TOP_1X + 1) * scale
+        self.x_origin = (display_width - content_w) // 2
+        # y_base positions local y=0; center the content vertically
+        y_margin = (display_height - content_h) // 2
+        self.y_base = y_margin - _CONTENT_TOP_1X * scale
 
         self.digits = [DigitAnimation() for _ in range(4)]
         self.current_digits = [-1, -1, -1, -1]
@@ -60,22 +72,23 @@ class Clock:
 
         Returns list of (blocktype, color_index, screen_x, screen_y, rotation).
         """
+        s = self.scale
         blocks = []
         for i, digit_anim in enumerate(self.digits):
             x_shift = X_SHIFT_CLOCK[i]
 
             # Settled blocks
             for blocktype, color, x_pos, y_pos, rotation in digit_anim.get_settled_blocks():
-                screen_x = self.x_origin + x_shift + x_pos
-                screen_y = self.y_base + y_pos
+                screen_x = self.x_origin + (x_shift + x_pos) * s
+                screen_y = self.y_base + y_pos * s
                 blocks.append((blocktype, color, screen_x, screen_y, rotation))
 
             # Falling block
             falling = digit_anim.get_falling_block()
             if falling:
                 blocktype, color, x_pos, y_pos, rotation = falling
-                screen_x = self.x_origin + x_shift + x_pos
-                screen_y = self.y_base + y_pos
+                screen_x = self.x_origin + (x_shift + x_pos) * s
+                screen_y = self.y_base + y_pos * s
                 blocks.append((blocktype, color, screen_x, screen_y, rotation))
 
         return blocks
@@ -84,15 +97,15 @@ class Clock:
         """
         Get colon pixel positions in absolute screen coordinates.
 
-        The colon is drawn at x = origin + DISTANCE_BETWEEN_DIGITS * 2,
-        as two 2x2 squares at y offsets 8 and 12.
+        The colon is drawn between digit pairs as two square dots,
+        scaled proportionally.
         """
-        x = self.x_origin + 14  # 7 * 2
+        s = self.scale
+        x = self.x_origin + 14 * s
         pixels = []
         for y_offset in [8, 12]:
-            y = self.y_base + y_offset
-            pixels.extend([
-                (x, y), (x + 1, y),
-                (x, y + 1), (x + 1, y + 1),
-            ])
+            y = self.y_base + y_offset * s
+            for dx in range(2 * s):
+                for dy in range(2 * s):
+                    pixels.append((x + dx, y + dy))
         return pixels

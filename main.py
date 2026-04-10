@@ -33,7 +33,7 @@ def run_matrix(args):
     from tetris_clock.renderer import MatrixRenderer
 
     matrix = create_matrix(args)
-    renderer = MatrixRenderer(matrix)
+    renderer = MatrixRenderer(matrix, pixel_scale=args.pixel_scale)
     run_loop(renderer, args)
 
 
@@ -41,7 +41,8 @@ def run_test(args):
     """Run the clock in test mode, saving PNGs."""
     from tetris_clock.renderer import PNGRenderer
 
-    renderer = PNGRenderer(args.test_output, scale=args.scale)
+    renderer = PNGRenderer(args.test_output, png_scale=args.scale,
+                           pixel_scale=args.pixel_scale)
     run_loop(renderer, args, max_frames=args.frames)
 
 
@@ -51,7 +52,7 @@ def run_loop(renderer, args, max_frames=None):
     frame_duration = 1.0 / target_fps
     ticks_per_frame = args.ticks
 
-    clock = Clock()
+    clock = Clock(scale=args.pixel_scale)
     last_time_check = 0
     frame_count = 0
 
@@ -120,6 +121,8 @@ def main():
                         help="Max frames in test mode (default: 200)")
     parser.add_argument("--scale", type=int, default=8,
                         help="PNG scale factor in test mode (default: 8)")
+    parser.add_argument("--pixel-scale", type=int, default=2,
+                        help="Clock pixel scale factor (default: 2)")
 
     args = parser.parse_args()
 
