@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Test output
+test_output/
+*.png
+*.gif
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/*.local.json

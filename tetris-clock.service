@@ -1,0 +1,17 @@
+[Unit]
+Description=Tetris Clock LED Matrix
+After=network-online.target time-sync.target
+Wants=network-online.target time-sync.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/pi/tetris-clock
+ExecStart=/usr/bin/python3 /home/pi/tetris-clock/main.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
