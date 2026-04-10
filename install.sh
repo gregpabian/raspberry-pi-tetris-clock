@@ -6,6 +6,9 @@ set -e
 
 echo "=== Tetris Clock Installer ==="
 
+# Save project directory before any cd
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 # Check for root
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root: sudo bash install.sh"
@@ -24,7 +27,7 @@ if [ ! -d "/opt/rpi-rgb-led-matrix" ]; then
 fi
 
 echo "Building rpi-rgb-led-matrix Python bindings..."
-cd /opt/rpi-rgb-led-matrix/bindings/python
+cd /opt/rpi-rgb-led-matrix
 pip3 install . --break-system-packages
 
 # Configure boot settings
@@ -45,7 +48,6 @@ if ! grep -q "dtoverlay=disable-bt" "$CONFIG"; then
 fi
 
 # Install systemd service
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 echo "Installing systemd service..."
 
 # Update service file with actual path
