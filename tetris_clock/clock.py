@@ -39,6 +39,15 @@ class Clock:
         self.current_digits = [-1, -1, -1, -1]
         self.colon_visible = True
 
+        # Pre-compute colon pixel coordinates (two square dots, scaled)
+        x = self.x_origin + 14 * scale
+        self._colon_pixel_coords = []
+        for y_offset in [8, 12]:
+            y = self.y_base + y_offset * scale
+            for dx in range(2 * scale):
+                for dy in range(2 * scale):
+                    self._colon_pixel_coords.append((x + dx, y + dy))
+
     def update_time(self, now=None):
         """
         Check current time and reset animations for any changed digits.
@@ -100,17 +109,8 @@ class Clock:
         """
         Get colon pixel positions in absolute screen coordinates.
 
-        The colon is drawn between digit pairs as two square dots,
-        scaled proportionally.
+        Returns pre-computed coordinates or empty list based on visibility.
         """
         if not self.colon_visible:
-            return []
-        s = self.scale
-        x = self.x_origin + 14 * s
-        pixels = []
-        for y_offset in [8, 12]:
-            y = self.y_base + y_offset * s
-            for dx in range(2 * s):
-                for dy in range(2 * s):
-                    pixels.append((x + dx, y + dy))
-        return pixels
+            return None
+        return self._colon_pixel_coords

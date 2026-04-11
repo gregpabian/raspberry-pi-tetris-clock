@@ -6,6 +6,7 @@ Displays time using falling Tetris blocks on a 64x32 RGB LED matrix.
 """
 
 import argparse
+import gc
 import time
 import signal
 import sys
@@ -68,13 +69,17 @@ def run_loop(renderer, args, max_frames=None):
 
     print(f"Tetris Clock running (fps={target_fps}, ticks={ticks_per_frame})")
 
+    # Disable automatic GC to avoid random frame-drop pauses
+    gc.disable()
+
     try:
         while running:
             frame_start = time.monotonic()
 
-            # Check time every second
+            # Check time every second; run GC here where a small hitch is invisible
             now = time.monotonic()
             if now - last_time_check >= 1.0:
+                gc.collect()
                 clock.update_time()
                 last_time_check = now
 

@@ -3,7 +3,7 @@ Display abstraction: renders animation state to either an LED matrix or PNG file
 """
 
 import os
-from PIL import Image, ImageDraw
+from PIL import Image
 from tetris_clock.tetris_font import COLORS
 from tetris_clock.pieces import get_pixels
 
@@ -31,6 +31,26 @@ def draw_frame_to_image(image, blocks, colon_pixels=None, scale=1):
         for px, py in colon_pixels:
             if 0 <= px < width and 0 <= py < height:
                 image.putpixel((px, py), (255, 255, 0))
+
+
+def draw_frame_to_canvas(canvas, blocks, colon_pixels=None, scale=1,
+                         width=64, height=32):
+    """
+    Draw blocks and colon directly onto an rpi-rgb-led-matrix canvas.
+
+    Bypasses PIL entirely for better performance on Pi Zero.
+    """
+    for blocktype, color_index, x, y, rotation in blocks:
+        r, g, b = COLORS[color_index]
+        pixels = get_pixels(blocktype, rotation, x, y, scale)
+        for px, py in pixels:
+            if 0 <= px < width and 0 <= py < height:
+                canvas.SetPixel(px, py, r, g, b)
+
+    if colon_pixels:
+        for px, py in colon_pixels:
+            if 0 <= px < width and 0 <= py < height:
+                canvas.SetPixel(px, py, 255, 255, 0)
 
 
 class PNGRenderer:
@@ -69,16 +89,12 @@ class MatrixRenderer:
         self.matrix = matrix
         self.pixel_scale = pixel_scale
         self.canvas = matrix.CreateFrameCanvas()
-        self.image = Image.new("RGB", (64, 32), (0, 0, 0))
 
     def render_frame(self, blocks, colon_pixels=None):
         """Render one frame to the LED matrix."""
-        # Clear and draw
-        self.image.paste((0, 0, 0), [0, 0, 64, 32])
-        draw_frame_to_image(self.image, blocks, colon_pixels, self.pixel_scale)
-
-        # Push to matrix
-        self.canvas.SetImage(self.image)
+        self.canvas.Clear()
+        draw_frame_to_canvas(self.canvas, blocks, colon_pixels,
+                             self.pixel_scale)
         self.canvas = self.matrix.SwapOnVSync(self.canvas)
 
     def cleanup(self):
