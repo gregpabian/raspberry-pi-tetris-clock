@@ -4,7 +4,7 @@ Per-digit animation state machine.
 Manages the sequential falling of Tetris blocks that compose a digit.
 """
 
-from tetris_clock.tetris_font import DIGIT_BLOCKS
+from tetris_clock.tetris_font import ALL_CHAR_BLOCKS
 
 
 def _get_rotation(num_rot, fallindex, y_stop):
@@ -57,16 +57,16 @@ class DigitAnimation:
 
     def is_complete(self):
         """Check if all blocks have finished falling."""
-        if self.digit < 0 or self.digit > 9:
+        if self.digit not in ALL_CHAR_BLOCKS:
             return True
-        return self.blockindex >= len(DIGIT_BLOCKS[self.digit])
+        return self.blockindex >= len(ALL_CHAR_BLOCKS[self.digit])
 
     def tick(self):
         """Advance animation by one step."""
         if self.is_complete():
             return
 
-        blocks = DIGIT_BLOCKS[self.digit]
+        blocks = ALL_CHAR_BLOCKS[self.digit]
         current = blocks[self.blockindex]
         y_stop = current[3]
 
@@ -82,11 +82,11 @@ class DigitAnimation:
         Returns list of (blocktype, color_index, x_pos, y_pos, rotation)
         where y_pos = y_stop - 1 (final resting position).
         """
-        if self.digit < 0 or self.digit > 9:
+        if self.digit not in ALL_CHAR_BLOCKS:
             return []
 
         result = []
-        blocks = DIGIT_BLOCKS[self.digit]
+        blocks = ALL_CHAR_BLOCKS[self.digit]
         for i in range(min(self.blockindex, len(blocks))):
             blocktype, color, x_pos, y_stop, num_rot = blocks[i]
             result.append((blocktype, color, x_pos, y_stop - 1, num_rot))
@@ -103,7 +103,7 @@ class DigitAnimation:
         if self.is_complete():
             return None
 
-        blocks = DIGIT_BLOCKS[self.digit]
+        blocks = ALL_CHAR_BLOCKS[self.digit]
         blocktype, color, x_pos, y_stop, num_rot = blocks[self.blockindex]
         rotation = _get_rotation(num_rot, self.fallindex, y_stop)
         y_pos = self.fallindex - 1

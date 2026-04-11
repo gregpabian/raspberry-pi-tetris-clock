@@ -12,6 +12,7 @@ from datetime import datetime
 from tetris_clock.animation import DigitAnimation
 from tetris_clock.clock import Clock
 from tetris_clock.renderer import PNGRenderer
+from tetris_clock.temperature import TemperatureDisplay
 from tetris_clock.tetris_font import DIGIT_BLOCKS, X_SHIFT_CLOCK
 
 
@@ -115,6 +116,24 @@ def render_transition(output_dir, num_frames=300, ticks_per_frame=2, pixel_scale
     print(f"  Transition 12:59->13:00: {num_frames + 10} frames -> {subdir}/")
 
 
+def render_temperature(value, output_dir, num_frames=200, ticks_per_frame=2, pixel_scale=2):
+    """Render a temperature display animation."""
+    subdir = os.path.join(output_dir, f"temp_{value}")
+    renderer = PNGRenderer(subdir, pixel_scale=pixel_scale)
+    temp_display = TemperatureDisplay(scale=pixel_scale)
+
+    temp_display.set_temperature(value)
+
+    for frame in range(num_frames):
+        blocks = temp_display.get_render_blocks()
+        renderer.render_frame(blocks)
+
+        for _ in range(ticks_per_frame):
+            temp_display.tick()
+
+    print(f"  Temperature {value}: {num_frames} frames -> {subdir}/")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Tetris Clock offline renderer")
     parser.add_argument("--output", "-o", default="test_output",
@@ -127,6 +146,8 @@ def main():
                         help="Render a clock display")
     parser.add_argument("--transition", action="store_true",
                         help="Render a time transition (12:59->13:00)")
+    parser.add_argument("--temperature", type=float, metavar="VALUE",
+                        help="Render a temperature display (e.g., 23.5 or -5.2)")
     parser.add_argument("--time", default="12:34",
                         help="Start time for --clock mode (HH:MM, default: 12:34)")
     parser.add_argument("--frames", type=int, default=200,
@@ -138,7 +159,8 @@ def main():
 
     args = parser.parse_args()
 
-    if not any([args.all_digits, args.digit is not None, args.clock, args.transition]):
+    if not any([args.all_digits, args.digit is not None, args.clock,
+                args.transition, args.temperature is not None]):
         parser.print_help()
         return
 
@@ -160,6 +182,9 @@ def main():
 
     if args.transition:
         render_transition(args.output, args.frames, args.ticks, ps)
+
+    if args.temperature is not None:
+        render_temperature(args.temperature, args.output, args.frames, args.ticks, ps)
 
     print("Done! Convert to GIF with:")
     print(f"  ffmpeg -r 20 -i {args.output}/<subdir>/frame_%04d.png output.gif")

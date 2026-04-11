@@ -20,9 +20,14 @@ def draw_frame_to_image(image, blocks, colon_pixels=None, scale=1):
         scale: Pixel scale factor passed to get_pixels
     """
     width, height = image.size
-    for blocktype, color_index, x, y, rotation in blocks:
+    for block in blocks:
+        if len(block) == 6:
+            blocktype, color_index, x, y, rotation, block_scale = block
+        else:
+            blocktype, color_index, x, y, rotation = block
+            block_scale = scale
         rgb = COLORS[color_index]
-        pixels = get_pixels(blocktype, rotation, x, y, scale)
+        pixels = get_pixels(blocktype, rotation, x, y, block_scale)
         for px, py in pixels:
             if 0 <= px < width and 0 <= py < height:
                 image.putpixel((px, py), rgb)
@@ -40,9 +45,14 @@ def draw_frame_to_canvas(canvas, blocks, colon_pixels=None, scale=1,
 
     Bypasses PIL entirely for better performance on Pi Zero.
     """
-    for blocktype, color_index, x, y, rotation in blocks:
+    for block in blocks:
+        if len(block) == 6:
+            blocktype, color_index, x, y, rotation, block_scale = block
+        else:
+            blocktype, color_index, x, y, rotation = block
+            block_scale = scale
         r, g, b = COLORS[color_index]
-        pixels = get_pixels(blocktype, rotation, x, y, scale)
+        pixels = get_pixels(blocktype, rotation, x, y, block_scale)
         for px, py in pixels:
             if 0 <= px < width and 0 <= py < height:
                 canvas.SetPixel(px, py, r, g, b)

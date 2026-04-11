@@ -226,6 +226,36 @@ DIGIT_BLOCKS = [
     ],
 ]
 
+# Extended characters for temperature display
+# Same format as DIGIT_BLOCKS: (blocktype, color_index, x_pos, y_stop, num_rot)
+
+# Minus sign (char index 10): horizontal I-piece bar at vertical center
+MINUS_BLOCKS = [
+    (3, 3, 0, 12, 0),  # white I-piece horizontal, settled at y=11
+]
+
+# Degree symbol (char index 11): small square near top
+DEGREE_BLOCKS = [
+    (0, 3, 0, 9, 0),   # white square, settled at y=8 (top of digit area)
+]
+
+# Decimal point (char index 12): small square at bottom
+POINT_BLOCKS = [
+    (0, 4, 0, 16, 0),  # yellow square at bottom, settled at y=15
+]
+
+# Combined lookup for all renderable characters
+ALL_CHAR_BLOCKS = {i: DIGIT_BLOCKS[i] for i in range(10)}
+ALL_CHAR_BLOCKS[10] = MINUS_BLOCKS
+ALL_CHAR_BLOCKS[11] = DEGREE_BLOCKS
+ALL_CHAR_BLOCKS[12] = POINT_BLOCKS
+
+# Character widths (spacing to next character origin) in 1x pixels
+CHAR_WIDTHS = {i: 7 for i in range(10)}
+CHAR_WIDTHS[10] = 5   # minus: I-piece is 4px wide + 1px gap
+CHAR_WIDTHS[11] = 3   # degree: square is 2px wide + 1px gap
+CHAR_WIDTHS[12] = 3   # point: square is 2px wide + 1px gap
+
 # Layout constants
 X_SHIFT_CLOCK = [0, 7, 17, 24]
 TETRIS_DISTANCE_BETWEEN_DIGITS = 7
