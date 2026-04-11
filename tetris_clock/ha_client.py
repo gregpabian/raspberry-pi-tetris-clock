@@ -13,7 +13,6 @@ import sys
 import time
 import threading
 import urllib.request
-import urllib.error
 
 
 class HAState:

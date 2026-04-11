@@ -139,6 +139,3 @@ class TemperatureDisplay:
 
         return blocks
 
-    def get_colon_pixels(self):
-        """No colon in temperature display."""
-        return None

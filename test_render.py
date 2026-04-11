@@ -13,7 +13,6 @@ from tetris_clock.animation import DigitAnimation
 from tetris_clock.clock import Clock
 from tetris_clock.renderer import PNGRenderer
 from tetris_clock.temperature import TemperatureDisplay
-from tetris_clock.tetris_font import DIGIT_BLOCKS, X_SHIFT_CLOCK
 
 
 def render_single_digit(digit, output_dir, ticks_per_frame=1, pixel_scale=2):

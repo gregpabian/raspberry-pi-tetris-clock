@@ -10,7 +10,6 @@ import gc
 import os
 import time
 import signal
-import sys
 
 from tetris_clock.clock import Clock
 from tetris_clock.temperature import TemperatureDisplay

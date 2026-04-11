@@ -258,5 +258,3 @@ CHAR_WIDTHS[12] = 3   # point: square is 2px wide + 1px gap
 
 # Layout constants
 X_SHIFT_CLOCK = [0, 7, 17, 24]
-TETRIS_DISTANCE_BETWEEN_DIGITS = 7
-TETRIS_Y_DROP_DEFAULT = 16
