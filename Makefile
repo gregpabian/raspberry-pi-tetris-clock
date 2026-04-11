@@ -1,5 +1,5 @@
 CC      = gcc
-CFLAGS  = -Wall -Wextra -O2 -std=c11
+CFLAGS  = -Wall -Wextra -O2 -std=c11 -D_POSIX_C_SOURCE=199309L
 
 # rpi-rgb-led-matrix install root (override with: make MATRIX_ROOT=~/rpi-rgb-led-matrix)
 MATRIX_ROOT ?= /usr/local
