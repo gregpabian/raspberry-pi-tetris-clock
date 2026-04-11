@@ -24,6 +24,7 @@ def create_matrix(args):
     options.hardware_mapping = "adafruit-hat"
     options.gpio_slowdown = args.slowdown
     options.brightness = args.brightness
+    options.pwm_bits = args.pwm_bits
     options.drop_privileges = False
 
     return RGBMatrix(options=options)
@@ -116,6 +117,8 @@ def main():
                         help="LED brightness 1-100 (default: 50)")
     parser.add_argument("--slowdown", type=int, default=2,
                         help="GPIO slowdown factor (default: 2 for Pi Zero)")
+    parser.add_argument("--pwm-bits", type=int, default=7,
+                        help="PWM bits for color depth 1-11 (default: 7, lower=less flicker)")
 
     # Test mode
     parser.add_argument("--test", action="store_true",
