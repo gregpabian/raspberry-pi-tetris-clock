@@ -1,17 +1,14 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-*.egg-info/
-dist/
-build/
-*.egg
+# Build artifacts
+tetris-clock
+tetris-clock-test
+*.o
 
-# Virtual environment
-venv/
-.venv/
-env/
+# Test output
+test_output/
+test_output_c/
+test_output_py/
+*.png
+*.gif
 
 # IDE
 .vscode/
@@ -19,11 +16,6 @@ env/
 *.swp
 *.swo
 *~
-
-# Test output
-test_output/
-*.png
-*.gif
 
 # OS
 .DS_Store

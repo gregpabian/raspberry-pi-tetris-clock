@@ -18,7 +18,7 @@ fi
 # Install system dependencies
 echo "Installing system dependencies..."
 apt-get update
-apt-get install -y python3-dev python3-pip python3-pillow cython3 git
+apt-get install -y build-essential git
 
 # Install rpi-rgb-led-matrix
 if [ ! -d "/opt/rpi-rgb-led-matrix" ]; then
@@ -26,9 +26,15 @@ if [ ! -d "/opt/rpi-rgb-led-matrix" ]; then
     git clone https://github.com/hzeller/rpi-rgb-led-matrix.git /opt/rpi-rgb-led-matrix
 fi
 
-echo "Building rpi-rgb-led-matrix Python bindings..."
+echo "Building rpi-rgb-led-matrix..."
 cd /opt/rpi-rgb-led-matrix
-pip3 install . --break-system-packages
+make -C lib
+make install-shared DESTDIR=/usr/local
+
+# Build tetris-clock
+echo "Building tetris-clock..."
+cd "$SCRIPT_DIR"
+make
 
 # Configure boot settings
 echo "Configuring boot settings..."

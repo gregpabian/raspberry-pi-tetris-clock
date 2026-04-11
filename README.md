@@ -2,7 +2,7 @@
 
 A Raspberry Pi-powered clock that displays time using falling Tetris blocks on a 64x32 LED matrix.
 
-Recreates the popular Arduino [TetrisAnimation](https://github.com/toblum/TetrisAnimation) library to run on Raspberry Pi using [rpi-rgb-led-matrix](https://github.com/hzeller/rpi-rgb-led-matrix).
+Recreates the popular Arduino [TetrisAnimation](https://github.com/toblum/TetrisAnimation) library to run on Raspberry Pi using [rpi-rgb-led-matrix](https://github.com/hzeller/rpi-rgb-led-matrix). Written in C for flicker-free performance on the Pi Zero W.
 
 ## Hardware
 
@@ -38,8 +38,9 @@ sudo bash install.sh
 ```
 
 This will:
-- Install system dependencies (`python3-dev`, `python3-pillow`, `git`)
-- Clone and build the [rpi-rgb-led-matrix](https://github.com/hzeller/rpi-rgb-led-matrix) Python bindings
+- Install build dependencies (`build-essential`, `git`)
+- Clone and build the [rpi-rgb-led-matrix](https://github.com/hzeller/rpi-rgb-led-matrix) shared library
+- Compile the tetris-clock binary
 - Disable onboard audio and Bluetooth in `/boot/config.txt` (required -- audio's PWM conflicts with the LED matrix driver)
 - Install and enable the systemd service for auto-start on boot
 
@@ -72,7 +73,7 @@ sudo systemctl status tetris-clock
 ### Command-line options
 
 ```bash
-sudo python3 main.py --brightness 50 --fps 20 --ticks 2
+sudo ./tetris-clock --brightness 50 --fps 20 --ticks 2
 ```
 
 | Flag | Default | Description |
@@ -81,54 +82,42 @@ sudo python3 main.py --brightness 50 --fps 20 --ticks 2
 | `--fps` | 20 | Target frames per second |
 | `--ticks` | 2 | Animation speed (ticks per frame, higher = faster) |
 | `--slowdown` | 2 | GPIO slowdown factor (2 for Pi Zero, 1 for Pi 3/4) |
+| `--pwm-bits` | 9 | PWM color depth (1-11, lower = less flicker) |
+| `--pwm-lsb-nanoseconds` | 300 | PWM LSB timing (higher = less flicker) |
+| `--pixel-scale` | 2 | Clock pixel scale factor |
 
 ## Development
 
 ### Offline testing (no Pi required)
 
-The project can render frames to PNG on any machine with Python and Pillow:
+Build the test binary on any machine with a C compiler:
 
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install Pillow
-```
-
-```bash
-# Render all digits 0-9
-.venv/bin/python3 test_render.py --all-digits --output test_output
-
-# Render a clock display
-.venv/bin/python3 test_render.py --clock --time 12:34 --output test_output
-
-# Render a time transition
-.venv/bin/python3 test_render.py --transition --output test_output
-
-# Run main.py in test mode (saves PNGs instead of driving matrix)
-.venv/bin/python3 main.py --test --frames 200
+make test
+./tetris-clock-test --test-output test_output/ --frames 200
 ```
 
 Convert frames to a GIF for review:
 
 ```bash
-ffmpeg -r 20 -i test_output/clock/frame_%04d.png clock.gif
+ffmpeg -r 20 -i test_output/frame_%04d.png clock.gif
 ```
 
 ### Project structure
 
 ```
-tetris_clock/
-  tetris_font.py   # Digit block definitions + piece shapes (pure data)
-  pieces.py         # Block type + rotation -> pixel coordinates
-  animation.py      # Per-digit falling block state machine
-  clock.py          # Time tracking, digit change detection, layout
-  renderer.py       # MatrixRenderer (Pi) / PNGRenderer (testing)
-main.py             # Entry point
-test_render.py      # Offline visual testing
-install.sh          # Pi setup script
+tetris_data.h        # Digit block definitions + piece shapes + colors (const arrays)
+tetris_pieces.h/c    # Block type + rotation -> pixel coordinates
+tetris_anim.h/c      # Per-digit falling block state machine
+tetris_clock.h/c     # Time tracking, digit change detection, layout
+tetris_render.h/c    # LED matrix renderer / PNG test renderer (#ifdef TEST_MODE)
+main.c               # Entry point
+stb_image_write.h    # Vendored PNG writer (test mode only)
+install.sh           # Pi setup script
 tetris-clock.service # systemd unit file
 ```
 
-Only `renderer.py`'s `MatrixRenderer` class imports `rgbmatrix` -- all other modules run on any machine.
+Only `tetris_render.c` (matrix mode) includes `led-matrix-c.h` -- all other modules compile on any machine.
 
 ## License
 

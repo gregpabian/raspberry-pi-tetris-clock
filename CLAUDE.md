@@ -1,6 +1,6 @@
 # Tetris Clock
 
-A Raspberry Pi-powered clock that displays time using falling Tetris blocks on a 64x32 LED matrix.
+A Raspberry Pi-powered clock that displays time using falling Tetris blocks on a 64x32 LED matrix. Pure C implementation for flicker-free performance on Pi Zero W.
 
 ## Hardware
 
@@ -11,27 +11,27 @@ A Raspberry Pi-powered clock that displays time using falling Tetris blocks on a
 
 ## Project Structure
 
-- `tetris_clock/` - Main package
-  - `tetris_font.py` - Pure data: digit block definitions, piece shapes, colors
-  - `pieces.py` - Converts blocktype+rotation to pixel coordinates
-  - `animation.py` - Per-digit falling block animation state machine
-  - `clock.py` - Time tracking, digit change detection, display layout
-  - `renderer.py` - Display abstraction (MatrixRenderer for Pi, PNGRenderer for testing)
-- `main.py` - Entry point with argument parsing and main loop
-- `test_render.py` - Offline visual testing (renders to PNG files)
+- `tetris_data.h` - Pure data: digit block definitions, piece shapes, colors (const arrays)
+- `tetris_pieces.h/c` - Converts blocktype+rotation to pixel coordinates
+- `tetris_anim.h/c` - Per-digit falling block animation state machine
+- `tetris_clock.h/c` - Time tracking, digit change detection, display layout
+- `tetris_render.h/c` - Display abstraction (LED matrix for Pi, PNG for testing via `#ifdef TEST_MODE`)
+- `main.c` - Entry point with argument parsing and main loop
+- `stb_image_write.h` - Vendored single-header PNG writer (test mode only)
 
-## Running
+## Building
 
 ### On Raspberry Pi
 ```bash
-sudo python3 main.py
+make                                          # default: library at /usr/local
+make MATRIX_ROOT=~/rpi-rgb-led-matrix         # if built from source
+sudo ./tetris-clock
 ```
-Required flags are set in code: `--led-rows=32 --led-cols=64 --led-gpio-mapping=adafruit-hat --led-slowdown-gpio=2`
 
-### Offline Testing (no hardware)
+### Test Build (no hardware, PNG output)
 ```bash
-python3 test_render.py --all-digits --output test_output/
-python3 test_render.py --clock --output test_output/
+make test
+./tetris-clock-test --test-output test_output/ --frames 200
 # Convert to GIF: ffmpeg -r 20 -i test_output/frame_%04d.png test.gif
 ```
 
@@ -45,14 +45,14 @@ journalctl -u tetris-clock -f
 ## Development
 
 - Develop via SSH directly on the Pi
-- Only `renderer.py`'s `MatrixRenderer` imports `rgbmatrix` - all other modules run on any machine
-- Use `test_render.py` or `main.py --test` for development without hardware
-- Digit data in `tetris_font.py` is transcribed from the Arduino TetrisAnimation library
+- Only `tetris_render.c` (matrix mode) includes `led-matrix-c.h` — all other modules compile anywhere
+- Use `make test` to build without hardware dependencies; renders PNG frames
+- Digit data in `tetris_data.h` is transcribed from the Arduino TetrisAnimation library
 
 ## Key Dependencies
 
 - [rpi-rgb-led-matrix](https://github.com/hzeller/rpi-rgb-led-matrix) - LED matrix driver (Pi only)
-- [Pillow](https://pillow.readthedocs.io/) - Image rendering (all platforms)
+- [stb_image_write](https://github.com/nothings/stb) - PNG output (test mode only, vendored)
 
 ## Pi Configuration Notes
 
