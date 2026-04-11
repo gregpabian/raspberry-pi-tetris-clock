@@ -30,9 +30,9 @@ class Clock:
         # Center content on display
         content_w = _CONTENT_WIDTH_1X * scale
         content_h = (_CONTENT_BOTTOM_1X - _CONTENT_TOP_1X + 1) * scale
-        self.x_origin = (display_width - content_w) // 2
+        self.x_origin = (display_width - content_w) // 2 + 1
         # y_base positions local y=0; center the content vertically
-        y_margin = (display_height - content_h) // 2
+        y_margin = (display_height - content_h) // 2 - 2
         self.y_base = y_margin - _CONTENT_TOP_1X * scale
 
         self.digits = [DigitAnimation() for _ in range(4)]
