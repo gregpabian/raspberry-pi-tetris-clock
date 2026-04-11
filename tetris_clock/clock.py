@@ -37,6 +37,7 @@ class Clock:
 
         self.digits = [DigitAnimation() for _ in range(4)]
         self.current_digits = [-1, -1, -1, -1]
+        self.colon_visible = True
 
     def update_time(self, now=None):
         """
@@ -47,6 +48,8 @@ class Clock:
         """
         if now is None:
             now = datetime.now()
+
+        self.colon_visible = now.second % 2 == 0
 
         h = now.hour
         m = now.minute
@@ -100,6 +103,8 @@ class Clock:
         The colon is drawn between digit pairs as two square dots,
         scaled proportionally.
         """
+        if not self.colon_visible:
+            return []
         s = self.scale
         x = self.x_origin + 14 * s
         pixels = []

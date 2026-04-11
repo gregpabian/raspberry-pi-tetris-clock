@@ -30,7 +30,7 @@ def draw_frame_to_image(image, blocks, colon_pixels=None, scale=1):
     if colon_pixels:
         for px, py in colon_pixels:
             if 0 <= px < width and 0 <= py < height:
-                image.putpixel((px, py), (255, 255, 255))
+                image.putpixel((px, py), (255, 255, 0))
 
 
 class PNGRenderer:
