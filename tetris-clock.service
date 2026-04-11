@@ -8,6 +8,11 @@ Type=simple
 User=root
 WorkingDirectory=/home/pi/tetris-clock
 ExecStart=/usr/bin/python3 /home/pi/tetris-clock/main.py
+# Uncomment and configure for Home Assistant integration:
+#Environment=HA_URL=http://homeassistant.local:8123
+#Environment=HA_TOKEN=your-long-lived-access-token
+#Environment=HA_TEMP_ENTITY=sensor.outdoor_temperature
+#Environment=HA_DISPLAY_ENTITY=input_boolean.tetris_clock_display
 Restart=on-failure
 RestartSec=5
 StandardOutput=journal

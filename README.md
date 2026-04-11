@@ -2,6 +2,8 @@
 
 A Raspberry Pi-powered clock that displays time using falling Tetris blocks on a 64x32 LED matrix.
 
+![Tetris Clock showing 15:32](example.jpg)
+
 Recreates the popular Arduino [TetrisAnimation](https://github.com/toblum/TetrisAnimation) library to run on Raspberry Pi using [rpi-rgb-led-matrix](https://github.com/hzeller/rpi-rgb-led-matrix).
 
 ## Hardware
@@ -81,6 +83,34 @@ sudo python3 main.py --brightness 50 --fps 20 --ticks 2
 | `--fps` | 20 | Target frames per second |
 | `--ticks` | 2 | Animation speed (ticks per frame, higher = faster) |
 | `--slowdown` | 2 | GPIO slowdown factor (2 for Pi Zero, 1 for Pi 3/4) |
+| `--pwm-bits` | 9 | PWM bits for color depth 1-11 (lower = less flicker) |
+| `--pwm-lsb-nanoseconds` | 300 | PWM LSB timing in ns (higher = less flicker) |
+| `--pixel-scale` | 2 | Clock pixel scale factor |
+
+## Home Assistant Integration
+
+The clock can optionally integrate with Home Assistant to:
+
+- **Show outdoor temperature** using Tetris-style falling blocks (displayed every 5 minutes for 12 seconds)
+- **Remote display on/off** via an `input_boolean` entity
+
+Configure via environment variables or command-line flags:
+
+```bash
+export HA_URL="http://homeassistant.local:8123"
+export HA_TOKEN="your-long-lived-access-token"
+export HA_TEMP_ENTITY="sensor.outdoor_temperature"
+export HA_DISPLAY_ENTITY="input_boolean.tetris_clock_display"  # optional
+sudo -E python3 main.py
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--ha-url` | | Home Assistant base URL |
+| `--ha-token` | | Long-lived access token |
+| `--ha-temp-entity` | | Temperature sensor entity ID |
+| `--ha-display-entity` | | `input_boolean` entity for display on/off |
+| `--temp-display-secs` | 12 | Seconds to show temperature |
 
 ## Development
 
@@ -122,6 +152,8 @@ tetris_clock/
   animation.py      # Per-digit falling block state machine
   clock.py          # Time tracking, digit change detection, layout
   renderer.py       # MatrixRenderer (Pi) / PNGRenderer (testing)
+  temperature.py    # Temperature display with mixed-scale Tetris blocks
+  ha_client.py      # Home Assistant REST API polling (background thread)
 main.py             # Entry point
 test_render.py      # Offline visual testing
 install.sh          # Pi setup script

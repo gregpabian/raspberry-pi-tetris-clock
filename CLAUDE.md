@@ -17,6 +17,8 @@ A Raspberry Pi-powered clock that displays time using falling Tetris blocks on a
   - `animation.py` - Per-digit falling block animation state machine
   - `clock.py` - Time tracking, digit change detection, display layout
   - `renderer.py` - Display abstraction (MatrixRenderer for Pi, PNGRenderer for testing)
+  - `temperature.py` - Temperature display with mixed-scale Tetris blocks
+  - `ha_client.py` - Home Assistant REST API polling (background thread)
 - `main.py` - Entry point with argument parsing and main loop
 - `test_render.py` - Offline visual testing (renders to PNG files)
 
@@ -26,7 +28,10 @@ A Raspberry Pi-powered clock that displays time using falling Tetris blocks on a
 ```bash
 sudo python3 main.py
 ```
-Required flags are set in code: `--led-rows=32 --led-cols=64 --led-gpio-mapping=adafruit-hat --led-slowdown-gpio=2`
+Matrix options (rows, cols, GPIO mapping) are set in code. Tunable via CLI: `--brightness`, `--slowdown`, `--pwm-bits`, `--pwm-lsb-nanoseconds`, `--pixel-scale`.
+
+### Home Assistant Integration
+Set `HA_URL`, `HA_TOKEN`, `HA_TEMP_ENTITY` (and optionally `HA_DISPLAY_ENTITY`) as env vars or CLI flags to enable temperature display and remote on/off control.
 
 ### Offline Testing (no hardware)
 ```bash
